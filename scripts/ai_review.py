@@ -40,8 +40,10 @@ Git diff:
 
 url = (
     "https://generativelanguage.googleapis.com/"
-    "v1beta/models/gemini-2.5-flash:generateContent"
+    "v1beta/models/gemini-3.7-flash:generateContent"
 )
+
+print("MODEL USED: gemini-3.7-flash", file=sys.stderr)
 
 
 headers = {
