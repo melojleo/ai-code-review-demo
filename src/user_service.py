@@ -1,14 +1,19 @@
+import os
 import requests
 
 
 def get_user(user_id):
 
-    password = "SuperSecret123"
+    if not user_id:
+        raise ValueError("user_id is required")
 
-    url = "https://api.company.com/users/" + user_id
+    api_url = os.getenv("API_URL")
 
-    response = requests.get(url)
+    response = requests.get(
+        f"{api_url}/users/{user_id}",
+        timeout=10
+    )
 
-    print("Database password:", password)
+    response.raise_for_status()
 
     return response.json()
