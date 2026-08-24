@@ -172,7 +172,6 @@ Human Reviewer
 
 The AI does not replace the human reviewer. It provides an automated first review so that obvious issues can be identified earlier.
 
-> **Screenshot suggestion:** Add an overview screenshot of the repository or the Pull Request workflow here.
 
 ---
 
