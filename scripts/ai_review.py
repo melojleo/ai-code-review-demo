@@ -3,16 +3,11 @@ import sys
 import requests
 
 
-api_key = "".join(os.environ["GEMINI_API_KEY"].split())
+api_key = os.environ["GEMINI_API_KEY"].strip()
 
-if not api_key.startswith("AIza"):
-    raise ValueError(
-        "GEMINI_API_KEY does not look like a valid Gemini API key"
-    )
+if not api_key:
+    raise ValueError("GEMINI_API_KEY is empty")
 
-print(f"API key loaded: {bool(api_key)}")
-print(f"API key length: {len(api_key)}")
-print(f"Starts with AIza: {api_key.startswith('AIza')}")
 
 diff_file = sys.argv[1]
 
@@ -35,36 +30,7 @@ Focus on:
 - Code quality
 - Best practices
 
-Do not complain about minor formatting or stylistic preferences.
-
 Return a concise Pull Request review in Markdown.
-
-Use this format:
-
-# 🤖 AI Code Review
-
-## Summary
-Provide a very short overall assessment.
-
-## Findings
-
-For each relevant issue:
-
-### 🔴 HIGH / 🟠 MEDIUM / 🟡 LOW
-
-**File:** filename
-
-**Issue:** Explain the problem.
-
-**Recommendation:** Explain how to fix it.
-
-At the end include:
-
-## ✅ Positive aspects
-
-Mention anything that was implemented well.
-
-If there are no significant issues, explicitly say so.
 
 Git diff:
 
@@ -74,11 +40,13 @@ Git diff:
 
 url = (
     "https://generativelanguage.googleapis.com/"
-    f"v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    "v1beta/models/gemini-2.5-flash:generateContent"
 )
 
+
 headers = {
-    "Content-Type": "application/json"
+    "x-goog-api-key": api_key,
+    "Content-Type": "application/json",
 }
 
 
@@ -102,7 +70,12 @@ response = requests.post(
     timeout=120
 )
 
-response.raise_for_status()
+
+if not response.ok:
+    print("Gemini error:", response.status_code)
+    print(response.text)
+    response.raise_for_status()
+
 
 data = response.json()
 
