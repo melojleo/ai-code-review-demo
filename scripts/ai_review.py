@@ -3,7 +3,11 @@ import sys
 import requests
 
 
-api_key = os.environ["GEMINI_API_KEY"]
+api_key = os.environ["GEMINI_API_KEY"].strip()
+
+print(f"API key loaded: {bool(api_key)}")
+print(f"API key length: {len(api_key)}")
+print(f"Starts with AIza: {api_key.startswith('AIza')}")
 
 diff_file = sys.argv[1]
 
