@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import requests
 
 
@@ -16,34 +17,53 @@ with open(diff_file, "r", encoding="utf-8") as f:
 
 
 prompt = f"""
-You are a senior software engineer performing a Pull Request code review.
+Review this Pull Request diff.
 
-Review ONLY the changed code provided in the Git diff below.
+Identify only important issues related to:
+- bugs
+- security
+- error handling
+- maintainability
 
-Focus on:
-- Bugs
-- Security vulnerabilities
-- Hardcoded secrets
-- Error handling
-- Performance
-- Maintainability
-- Code quality
-- Best practices
+Be concise.
 
-Return a concise Pull Request review in Markdown.
+Return Markdown using this structure:
 
-Git diff:
+# 🤖 AI Code Review
 
-{diff}
+## Summary
+One short sentence.
+
+## Findings
+
+For each relevant issue:
+
+### 🔴 HIGH / 🟠 MEDIUM / 🟡 LOW
+
+**File:** filename
+
+**Issue:** explanation
+
+**Recommendation:** recommended fix
+
+If there are no important issues, say:
+"No significant issues found."
+
+DIFF:
+
+{diff[:30000]}
 """
+
+
+MODEL = "gemini-3.5-flash-lite"
+
+print(f"MODEL USED: {MODEL}", file=sys.stderr)
 
 
 url = (
     "https://generativelanguage.googleapis.com/"
-    "v1beta/models/gemini-3.7-flash:generateContent"
+    f"v1beta/models/{MODEL}:generateContent"
 )
-
-print("MODEL USED: gemini-3.7-flash", file=sys.stderr)
 
 
 headers = {
@@ -61,22 +81,51 @@ payload = {
                 }
             ]
         }
-    ]
+    ],
+    "generationConfig": {
+        "maxOutputTokens": 1200
+    }
 }
 
 
-response = requests.post(
-    url,
-    headers=headers,
-    json=payload,
-    timeout=120
-)
+for attempt in range(3):
 
+    try:
 
-if not response.ok:
-    print("Gemini error:", response.status_code)
-    print(response.text)
-    response.raise_for_status()
+        response = requests.post(
+            url,
+            headers=headers,
+            json=payload,
+            timeout=180
+        )
+
+        if not response.ok:
+
+            print(
+                f"Gemini API error: {response.status_code}",
+                file=sys.stderr
+            )
+
+            print(
+                response.text,
+                file=sys.stderr
+            )
+
+            raise SystemExit(1)
+
+        break
+
+    except requests.exceptions.ReadTimeout:
+
+        if attempt == 2:
+            raise
+
+        print(
+            "Gemini timeout - retrying...",
+            file=sys.stderr
+        )
+
+        time.sleep(5)
 
 
 data = response.json()
