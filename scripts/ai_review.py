@@ -3,7 +3,12 @@ import sys
 import requests
 
 
-api_key = os.environ["GEMINI_API_KEY"].strip()
+api_key = "".join(os.environ["GEMINI_API_KEY"].split())
+
+if not api_key.startswith("AIza"):
+    raise ValueError(
+        "GEMINI_API_KEY does not look like a valid Gemini API key"
+    )
 
 print(f"API key loaded: {bool(api_key)}")
 print(f"API key length: {len(api_key)}")
