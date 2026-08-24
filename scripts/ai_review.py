@@ -69,13 +69,11 @@ Git diff:
 
 url = (
     "https://generativelanguage.googleapis.com/"
-    "v1beta/models/gemini-2.5-flash:generateContent"
+    f"v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
 )
 
-
 headers = {
-    "x-goog-api-key": api_key,
-    "Content-Type": "application/json",
+    "Content-Type": "application/json"
 }
 
 
